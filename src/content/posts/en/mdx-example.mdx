@@ -1,0 +1,89 @@
+---
+title: "MDX와 마크다운 확장 기능 예시"
+date: 2024-11-20
+category: "lab"
+tags: ["mdx", "markdown", "tutorial"]
+excerpt: "MDX 컴포넌트, 각주, GFM 기능 등 마크다운 확장 기능을 사용하는 방법을 알아봅니다."
+draft: false
+---
+
+import { Code } from 'astro:components';
+
+## MDX 소개
+
+MDX는 마크다운 파일에서 JSX 컴포넌트를 사용할 수 있게 해주는 형식입니다. 이를 통해 인터랙티브한 콘텐츠를 작성할 수 있습니다.
+
+### 컴포넌트 사용 예시
+
+아래는 Astro의 내장 `<Code>` 컴포넌트를 사용한 예시입니다:
+
+<Code code={`function greet(name) {
+  console.log(\`Hello, \${name}!\`);
+}
+
+greet('World');`} lang="js" theme="github-dark" />
+
+## 각주 (Footnotes)
+
+각주는 추가 정보나 참조를 제공할 때 유용합니다[^1]. 긴 설명이 필요한 경우에도 본문의 흐름을 방해하지 않고 정보를 전달할 수 있습니다[^2].
+
+GFM(GitHub Flavored Markdown)의 각주 문법을 사용하면 자동으로 링크가 생성됩니다[^note].
+
+## GFM 확장 기능
+
+### 테이블
+
+| 기능 | 지원 | 비고 |
+|------|:----:|------|
+| 각주 | ✅ | remark-gfm |
+| 테이블 | ✅ | GFM 표준 |
+| 취소선 | ✅ | ~~취소선~~ |
+| 자동 링크 | ✅ | https://example.com |
+
+### 체크리스트
+
+- [x] MDX 지원 추가
+- [x] 각주 스타일링
+- [x] 코드 구문 강조
+- [ ] 더 많은 컴포넌트 추가
+
+### 취소선
+
+~~이 텍스트는 취소선이 적용됩니다.~~
+
+## 코드 블록
+
+일반 마크다운 코드 블록도 잘 작동합니다:
+
+```typescript
+interface BlogPost {
+  title: string;
+  date: Date;
+  tags: string[];
+  content: string;
+}
+
+async function fetchPosts(): Promise<BlogPost[]> {
+  const response = await fetch('/api/posts');
+  return response.json();
+}
+```
+
+```css
+/* 다크 모드 스타일 */
+:root[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-text: #E8E8E8;
+  --color-accent: #FF4444;
+}
+```
+
+## 결론
+
+MDX를 사용하면 마크다운의 간결함과 React/Astro 컴포넌트의 강력함을 결합할 수 있습니다. 각주, 테이블, 체크리스트 등 GFM 기능도 완벽히 지원됩니다.
+
+---
+
+[^1]: 각주는 페이지 하단에 표시됩니다. 클릭하면 해당 위치로 이동합니다.
+[^2]: 각주 번호는 자동으로 생성되며, 돌아가기 화살표도 함께 제공됩니다.
+[^note]: 각주 ID는 숫자 대신 텍스트를 사용할 수도 있습니다. 이 경우 표시는 순서대로 번호가 붙습니다.

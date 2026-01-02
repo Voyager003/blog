@@ -1,0 +1,48 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { getLangFromUrl } from "../i18n/utils";
+import { useTranslations } from "../i18n/utils";
+
+// Try to detect language from URL or default to ko
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<Layout
+    title={t('404.title')}
+    description={t('404.description')}
+    lang={lang}
+    noindex={true}
+>
+    <Header lang={lang} />
+    <main class="w-full max-w-[var(--width-container)] mx-auto px-8 py-16 lg:py-32 min-h-[60vh] flex items-center justify-center">
+        <div class="text-center animate-fade-in-up">
+            <span class="text-[120px] sm:text-[180px] lg:text-[240px] font-light leading-none text-[var(--color-border)]" style="font-family: var(--font-serif)">
+                404
+            </span>
+            <h1 class="text-[24px] sm:text-[32px] font-light mt-4 mb-4" style="font-family: var(--font-serif)">
+                {t('404.title')}
+            </h1>
+            <p class="text-[14px] text-[var(--color-text-secondary)] mb-8 max-w-[400px] mx-auto">
+                {t('404.description')}
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                    href={`/${lang}/`}
+                    class="inline-block px-6 py-3 text-[13px] bg-[var(--color-text)] text-[var(--color-bg)] hover:bg-[var(--color-accent)] transition-colors"
+                >
+                    {t('404.goHome')}
+                </a>
+                <a
+                    href={`/${lang}/blog`}
+                    class="inline-block px-6 py-3 text-[13px] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+                >
+                    {t('404.readBlog')}
+                </a>
+            </div>
+        </div>
+    </main>
+    <Footer lang={lang} />
+</Layout>

@@ -1,0 +1,57 @@
+---
+// Back to Top Button Component
+---
+
+<button
+    id="back-to-top"
+    class="fixed bottom-8 right-8 z-40 w-10 h-10 flex items-center justify-center bg-[var(--color-text)] text-[var(--color-bg)] opacity-0 invisible translate-y-4 transition-all duration-300 hover:bg-[var(--color-accent)]"
+    aria-label="Scroll to top"
+>
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+</button>
+
+<style>
+    #back-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+</style>
+
+<script>
+    function initBackToTop() {
+        const button = document.getElementById('back-to-top');
+        if (!button) return;
+
+        // Show/hide button based on scroll position
+        const toggleVisibility = () => {
+            if (window.scrollY > 400) {
+                button.classList.add('visible');
+            } else {
+                button.classList.remove('visible');
+            }
+        };
+
+        // Scroll to top on click
+        button.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Listen for scroll events
+        window.addEventListener('scroll', toggleVisibility, { passive: true });
+
+        // Initial check
+        toggleVisibility();
+    }
+
+    // Initialize on page load
+    initBackToTop();
+
+    // Re-initialize on view transitions
+    document.addEventListener('astro:after-swap', initBackToTop);
+</script>

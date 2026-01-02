@@ -1,0 +1,33 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#FAFAFA"/>
+
+  <!-- Subtle grid pattern -->
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#E8E8E8" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Accent line -->
+  <rect x="100" y="240" width="4" height="150" fill="#EC0101"/>
+
+  <!-- Main text -->
+  <text x="130" y="300" font-family="Georgia, serif" font-size="72" font-weight="300" fill="#333333">
+    JONGMIN KIM
+  </text>
+
+  <!-- Subtitle -->
+  <text x="130" y="360" font-family="'Courier New', monospace" font-size="20" fill="#666666" letter-spacing="2">
+    CREATIVE DEVELOPER
+  </text>
+
+  <!-- Domain -->
+  <text x="130" y="540" font-family="'Courier New', monospace" font-size="14" fill="#999999">
+    cmiscm.com
+  </text>
+
+  <!-- Decorative element -->
+  <circle cx="1050" cy="315" r="80" fill="none" stroke="#E8E8E8" stroke-width="1"/>
+  <circle cx="1050" cy="315" r="40" fill="none" stroke="#EC0101" stroke-width="1" opacity="0.5"/>
+</svg>

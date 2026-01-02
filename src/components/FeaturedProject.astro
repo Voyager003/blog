@@ -1,0 +1,42 @@
+---
+interface Props {
+    title: string;
+    description: string;
+    tech: string[];
+    animationType: 'ai' | 'drawing' | 'particles';
+    href?: string;
+}
+
+const { title, description, tech, animationType, href = "#" } = Astro.props;
+
+const animationClass = {
+    ai: 'placeholder-ai',
+    drawing: 'placeholder-drawing',
+    particles: 'placeholder-particles'
+}[animationType];
+---
+
+<article class="group grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 py-12 lg:py-16 border-b border-[var(--color-border-light)] cursor-pointer">
+    <a href={href} class="block">
+        <div class="relative overflow-hidden aspect-video lg:aspect-[16/10]">
+            <div class={`absolute inset-0 bg-gradient-to-br from-[#f8f8f8] to-[#f0f0f0] transition-transform duration-500 group-hover:scale-[1.02]`}>
+                <div class={`absolute inset-0 opacity-60 ${animationClass}`}></div>
+            </div>
+        </div>
+    </a>
+    <div class="flex flex-col justify-center">
+        <h2 class="text-2xl lg:text-[32px] font-normal leading-tight mb-4 transition-colors duration-150 group-hover:text-[var(--color-accent)]" style="font-family: var(--font-serif)">
+            <a href={href}>{title}</a>
+        </h2>
+        <p class="text-[14px] leading-relaxed text-[var(--color-text-secondary)] mb-8">
+            {description}
+        </p>
+        <div class="flex flex-wrap gap-2">
+            {tech.map((item) => (
+                <span class="text-[11px] px-2 py-1 bg-[var(--color-border-light)] text-[var(--color-text-secondary)]">
+                    {item}
+                </span>
+            ))}
+        </div>
+    </div>
+</article>

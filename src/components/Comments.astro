@@ -1,0 +1,116 @@
+---
+/**
+ * Giscus Comments Component
+ *
+ * 설정 방법:
+ * 1. https://giscus.app 에서 설정 생성
+ * 2. GitHub 저장소에서 Discussions 활성화
+ * 3. giscus 앱 설치: https://github.com/apps/giscus
+ * 4. 아래 설정값을 본인의 저장소 정보로 변경
+ */
+
+interface Props {
+    title?: string;
+}
+
+const { title } = Astro.props;
+
+// Giscus 설정 - 본인의 저장소 정보로 변경하세요
+const giscusConfig = {
+    repo: "your-username/your-repo", // 예: "nicejongmin/blog"
+    repoId: "YOUR_REPO_ID",          // giscus.app에서 확인
+    category: "Announcements",        // 또는 "General"
+    categoryId: "YOUR_CATEGORY_ID",  // giscus.app에서 확인
+    mapping: "pathname",              // URL 경로 기반 매핑
+    reactionsEnabled: "1",
+    emitMetadata: "0",
+    inputPosition: "top",
+    lang: "ko",
+};
+---
+
+<div class="giscus-wrapper mt-16 pt-8 border-t border-[var(--color-border-light)]">
+    <h3 class="text-[11px] font-medium tracking-wider uppercase text-[var(--color-text-tertiary)] mb-6">
+        Comments
+    </h3>
+    <div class="giscus" id="giscus-container"></div>
+</div>
+
+<script define:vars={{ giscusConfig }}>
+    function loadGiscus() {
+        const container = document.getElementById('giscus-container');
+        if (!container) return;
+
+        // 이미 로드된 경우 스킵
+        if (container.querySelector('.giscus-frame')) return;
+
+        // 현재 테마 확인
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark'
+            ? 'dark'
+            : 'light';
+
+        const script = document.createElement('script');
+        script.src = 'https://giscus.app/client.js';
+        script.setAttribute('data-repo', giscusConfig.repo);
+        script.setAttribute('data-repo-id', giscusConfig.repoId);
+        script.setAttribute('data-category', giscusConfig.category);
+        script.setAttribute('data-category-id', giscusConfig.categoryId);
+        script.setAttribute('data-mapping', giscusConfig.mapping);
+        script.setAttribute('data-strict', '0');
+        script.setAttribute('data-reactions-enabled', giscusConfig.reactionsEnabled);
+        script.setAttribute('data-emit-metadata', giscusConfig.emitMetadata);
+        script.setAttribute('data-input-position', giscusConfig.inputPosition);
+        script.setAttribute('data-theme', theme);
+        script.setAttribute('data-lang', giscusConfig.lang);
+        script.setAttribute('data-loading', 'lazy');
+        script.crossOrigin = 'anonymous';
+        script.async = true;
+
+        container.appendChild(script);
+    }
+
+    // 테마 변경 시 Giscus 테마도 변경
+    function updateGiscusTheme() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark'
+            ? 'dark'
+            : 'light';
+
+        const iframe = document.querySelector('.giscus-frame');
+        if (iframe) {
+            iframe.contentWindow?.postMessage(
+                { giscus: { setConfig: { theme } } },
+                'https://giscus.app'
+            );
+        }
+    }
+
+    // MutationObserver로 테마 변경 감지
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'data-theme') {
+                updateGiscusTheme();
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
+
+    // 페이지 로드 시 Giscus 로드
+    loadGiscus();
+
+    // View Transitions 지원
+    document.addEventListener('astro:after-swap', loadGiscus);
+</script>
+
+<style>
+    .giscus-wrapper {
+        min-height: 200px;
+    }
+
+    .giscus {
+        width: 100%;
+    }
+</style>

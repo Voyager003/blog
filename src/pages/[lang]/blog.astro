@@ -1,0 +1,337 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { getCollection } from "astro:content";
+import { locales, type Locale } from "../../i18n/config";
+import { useTranslations, formatDateShort } from "../../i18n/utils";
+
+export function getStaticPaths() {
+    return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = useTranslations(lang);
+
+// Filter posts by language (from folder structure: en/post-name or ko/post-name)
+const allPosts = await getCollection("posts", ({ id, data }) => {
+    const postLang = id.startsWith('ko/') ? 'ko' : 'en';
+    return postLang === lang && data.draft !== true;
+});
+
+// Sort by date and remove lang prefix from slug
+const posts = allPosts
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .map(post => ({
+        ...post,
+        slug: post.id.replace(/^(ko|en)\//, ''),
+    }));
+
+// Category counts
+const categoryCounts = posts.reduce((acc, post) => {
+    const cat = post.data.category;
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+}, {} as Record<string, number>);
+
+// Tag counts
+const tagCounts = posts.reduce((acc, post) => {
+    post.data.tags.forEach(tag => {
+        acc[tag] = (acc[tag] || 0) + 1;
+    });
+    return acc;
+}, {} as Record<string, number>);
+
+const sortedTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag, count]) => ({ tag, count }));
+
+const categories = [
+    { name: t('category.all'), slug: "all", count: posts.length },
+    { name: t('category.news'), slug: "news", count: categoryCounts['news'] || 0 },
+    { name: t('category.log'), slug: "log", count: categoryCounts['log'] || 0 },
+    { name: t('category.diy'), slug: "diy", count: categoryCounts['diy'] || 0 },
+    { name: t('category.projects'), slug: "projects", count: categoryCounts['projects'] || 0 },
+    { name: t('category.lab'), slug: "lab", count: categoryCounts['lab'] || 0 }
+];
+---
+
+<Layout
+    title={t('nav.blog')}
+    description={lang === 'ko'
+        ? "크리에이티브 코딩, WebGL, 머신러닝, 인터랙티브 디자인에 관한 글. 개발 노트, 튜토리얼, 프로젝트 인사이트."
+        : "Articles about creative coding, WebGL, machine learning, and interactive design. Development notes, tutorials, and project insights from Jongmin Kim."
+    }
+    keywords={['blog', 'creative coding', 'webgl', 'tutorials', 'development', 'machine learning', 'interactive design']}
+    lang={lang}
+>
+    <Header lang={lang} />
+    <main class="w-full max-w-[var(--width-container)] mx-auto px-8 py-12 lg:py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-32">
+            <!-- Sidebar -->
+            <aside class="lg:sticky lg:top-[calc(var(--header-height)+32px)] lg:self-start order-first lg:order-none">
+                <!-- Categories -->
+                <span class="label block mb-4">{t('blog.categories')}</span>
+                <nav class="flex flex-row lg:flex-col flex-wrap gap-2 lg:gap-0 mb-8" id="category-nav">
+                    {categories.map((cat, index) => (
+                        <a
+                            href={`?category=${cat.slug}`}
+                            class={`cat-link ${index === 0 ? 'active' : ''} px-3 lg:px-0 py-2 lg:py-2 border lg:border-0 lg:border-b border-[var(--color-border)] lg:border-transparent rounded lg:rounded-none`}
+                            data-filter={cat.slug}
+                            data-filter-type="category"
+                        >
+                            <span class="block lg:hidden">{cat.name.split(' ')[0]}</span>
+                            <span class="hidden lg:block">{cat.name}</span>
+                            <span class="hidden lg:inline">{cat.count}</span>
+                        </a>
+                    ))}
+                </nav>
+
+                <!-- Tags -->
+                <span class="label block mb-4">{t('blog.tags')}</span>
+                <div class="flex flex-wrap gap-2" id="tag-nav">
+                    {sortedTags.map(({ tag, count }) => (
+                        <a
+                            href={`?tag=${tag}`}
+                            class="tag-link text-[11px] px-2 py-1 bg-[var(--color-border-light)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
+                            data-filter={tag}
+                            data-filter-type="tag"
+                        >
+                            #{tag} <span class="opacity-60">({count})</span>
+                        </a>
+                    ))}
+                </div>
+
+                <!-- Active Filter Indicator -->
+                <div id="active-filter" class="hidden mt-6 p-3 bg-[var(--color-border-light)] border-l-2 border-[var(--color-accent)]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[12px] text-[var(--color-text-secondary)]">
+                            {t('blog.filterBy')} <strong id="filter-label" class="text-[var(--color-text)]"></strong>
+                        </span>
+                        <button id="clear-filter" class="text-[11px] text-[var(--color-accent)] hover:underline">
+                            {t('blog.clear')}
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Posts List -->
+            <div class="flex flex-col gap-8" id="posts-list">
+                <!-- No Results Message -->
+                <div id="no-results" class="hidden py-16 text-center">
+                    <p class="text-[var(--color-text-secondary)] mb-4">{t('blog.noResults')}</p>
+                    <button id="reset-filter" class="text-[14px] text-[var(--color-accent)] hover:underline">
+                        {t('blog.showAll')}
+                    </button>
+                </div>
+
+                {posts.map((post, index) => (
+                    <article
+                        class="group grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-4 sm:gap-8 pb-8 border-b border-[var(--color-border-light)] cursor-pointer post-item"
+                        data-category={post.data.category}
+                        data-tags={JSON.stringify(post.data.tags)}
+                        style={`animation-delay: ${index * 0.05}s`}
+                    >
+                        <a href={`/${lang}/blog/${post.slug}`} class="block">
+                            <div class="aspect-video sm:aspect-[16/10] overflow-hidden bg-[var(--color-border-light)]">
+                                {post.data.cover ? (
+                                    <img
+                                        src={post.data.cover.src}
+                                        alt={post.data.title}
+                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                ) : (
+                                    <div class="w-full h-full bg-gradient-to-br from-[var(--color-border-light)] to-[var(--color-border)] transition-transform duration-500 group-hover:scale-105"></div>
+                                )}
+                            </div>
+                        </a>
+                        <div class="flex flex-col justify-center">
+                            <div class="flex flex-wrap gap-4 mb-2">
+                                <span class="text-[11px] text-[var(--color-text-tertiary)]">
+                                    {formatDateShort(post.data.date, lang)}
+                                </span>
+                                <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wide">
+                                    {post.data.category}
+                                </span>
+                            </div>
+                            <h3 class="text-[18px] font-normal leading-snug mb-2 transition-colors duration-150 group-hover:text-[var(--color-accent)]" style="font-family: var(--font-serif)">
+                                <a href={`/${lang}/blog/${post.slug}`}>{post.data.title}</a>
+                            </h3>
+                            {post.data.excerpt && (
+                                <p class="text-[13px] leading-relaxed text-[var(--color-text-secondary)] line-clamp-2 mb-3">
+                                    {post.data.excerpt}
+                                </p>
+                            )}
+                            {post.data.tags.length > 0 && (
+                                <div class="flex flex-wrap gap-2">
+                                    {post.data.tags.slice(0, 3).map(tag => (
+                                        <button
+                                            class="tag-filter-btn text-[10px] px-2 py-0.5 bg-[var(--color-border-light)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
+                                            data-tag={tag}
+                                        >
+                                            #{tag}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </div>
+    </main>
+    <Footer lang={lang} />
+</Layout>
+
+<script>
+    function initBlogFilters() {
+        const categoryLinks = document.querySelectorAll('.cat-link');
+        const tagLinks = document.querySelectorAll('.tag-link');
+        const tagFilterBtns = document.querySelectorAll('.tag-filter-btn');
+        const postItems = document.querySelectorAll('.post-item');
+        const activeFilterEl = document.getElementById('active-filter');
+        const filterLabelEl = document.getElementById('filter-label');
+        const clearFilterBtn = document.getElementById('clear-filter');
+        const resetFilterBtn = document.getElementById('reset-filter');
+        const noResultsEl = document.getElementById('no-results');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialCategory = urlParams.get('category');
+        const initialTag = urlParams.get('tag');
+
+        if (initialTag) {
+            applyTagFilter(initialTag);
+        } else if (initialCategory) {
+            applyCategoryFilter(initialCategory);
+        } else {
+            applyCategoryFilter('all');
+        }
+
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const filter = link.getAttribute('data-filter') || 'all';
+                applyCategoryFilter(filter);
+                updateURL('category', filter);
+            });
+        });
+
+        tagLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tag = link.getAttribute('data-filter') || '';
+                applyTagFilter(tag);
+                updateURL('tag', tag);
+            });
+        });
+
+        tagFilterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const tag = btn.getAttribute('data-tag') || '';
+                applyTagFilter(tag);
+                updateURL('tag', tag);
+            });
+        });
+
+        clearFilterBtn?.addEventListener('click', () => {
+            applyCategoryFilter('all');
+            updateURL('category', 'all');
+        });
+
+        resetFilterBtn?.addEventListener('click', () => {
+            applyCategoryFilter('all');
+            updateURL('category', 'all');
+        });
+
+        function updateURL(type: string, value: string) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('category');
+            url.searchParams.delete('tag');
+            if (type === 'category' && value !== 'all') {
+                url.searchParams.set('category', value);
+            } else if (type === 'tag') {
+                url.searchParams.set('tag', value);
+            }
+            window.history.pushState({}, '', url.toString());
+        }
+
+        function applyCategoryFilter(filter: string) {
+            tagLinks.forEach(link => link.classList.remove('active'));
+            categoryLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-filter') === filter) {
+                    link.classList.add('active');
+                }
+            });
+
+            if (filter === 'all') {
+                activeFilterEl?.classList.add('hidden');
+            } else {
+                activeFilterEl?.classList.remove('hidden');
+                if (filterLabelEl) filterLabelEl.textContent = filter;
+            }
+
+            let visibleCount = 0;
+            postItems.forEach(item => {
+                const category = item.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    item.classList.remove('hidden');
+                    (item as HTMLElement).style.animation = 'fadeIn 0.4s ease forwards';
+                    visibleCount++;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            if (visibleCount === 0) {
+                noResultsEl?.classList.remove('hidden');
+            } else {
+                noResultsEl?.classList.add('hidden');
+            }
+        }
+
+        function applyTagFilter(tag: string) {
+            categoryLinks.forEach(link => link.classList.remove('active'));
+            tagLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-filter') === tag) {
+                    link.classList.add('active');
+                }
+            });
+
+            activeFilterEl?.classList.remove('hidden');
+            if (filterLabelEl) filterLabelEl.textContent = `#${tag}`;
+
+            let visibleCount = 0;
+            postItems.forEach(item => {
+                const tagsAttr = item.getAttribute('data-tags');
+                const tags: string[] = tagsAttr ? JSON.parse(tagsAttr) : [];
+                if (tags.includes(tag)) {
+                    item.classList.remove('hidden');
+                    (item as HTMLElement).style.animation = 'fadeIn 0.4s ease forwards';
+                    visibleCount++;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            if (visibleCount === 0) {
+                noResultsEl?.classList.remove('hidden');
+            } else {
+                noResultsEl?.classList.add('hidden');
+            }
+        }
+    }
+
+    initBlogFilters();
+    document.addEventListener('astro:after-swap', initBlogFilters);
+</script>
+
+<style>
+    .tag-link.active {
+        background: var(--color-text);
+        color: var(--color-bg);
+    }
+</style>

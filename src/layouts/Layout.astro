@@ -1,0 +1,85 @@
+---
+import SEO from '../components/SEO.astro';
+import { defaultLocale, locales, type Locale } from '../i18n/config';
+import { getAlternateUrl } from '../i18n/utils';
+
+interface Props {
+	title?: string;
+	description?: string;
+	keywords?: string[];
+	lang?: Locale;
+	ogType?: 'website' | 'article' | 'profile';
+	ogImage?: string;
+	publishedTime?: Date;
+	modifiedTime?: Date;
+	tags?: string[];
+	section?: string;
+	noindex?: boolean;
+}
+
+const {
+	title = "JONGMIN KIM",
+	description = "Creative Developer & Designer - Exploring the intersection of code and creativity. Building interactive experiences, experimental interfaces, and digital art.",
+	keywords = ['creative developer', 'webgl', 'interactive design', 'generative art', 'creative coding'],
+	lang = defaultLocale,
+	ogType = 'website',
+	ogImage,
+	publishedTime,
+	modifiedTime,
+	tags = [],
+	section,
+	noindex = false,
+} = Astro.props;
+
+// Generate alternate URLs for hreflang
+const currentPath = Astro.url.pathname;
+const alternateUrls = locales.map(locale => ({
+	lang: locale,
+	url: getAlternateUrl(currentPath, locale),
+}));
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<meta name="generator" content={Astro.generator} />
+
+		<!-- Hreflang alternate links for i18n -->
+		{alternateUrls.map(({ lang: altLang, url }) => (
+			<link rel="alternate" hreflang={altLang} href={`https://blog.cmiscm.com${url}`} />
+		))}
+		<link rel="alternate" hreflang="x-default" href={`https://blog.cmiscm.com/${defaultLocale}/`} />
+
+		<!-- Prevent flash of wrong theme -->
+		<script is:inline>
+			const savedTheme = localStorage.getItem('theme');
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			document.documentElement.setAttribute('data-theme', savedTheme || (prefersDark ? 'dark' : 'light'));
+		</script>
+
+		<SEO
+			title={title}
+			description={description}
+			keywords={keywords}
+			lang={lang}
+			ogType={ogType}
+			ogImage={ogImage}
+			publishedTime={publishedTime}
+			modifiedTime={modifiedTime}
+			tags={tags}
+			section={section}
+			noindex={noindex}
+		/>
+	</head>
+	<body class="min-h-screen">
+		<slot />
+	</body>
+</html>
+
+<script>
+	import "../styles/global.css";
+</script>

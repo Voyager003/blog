@@ -1,0 +1,78 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import FeaturedProject from "../../components/FeaturedProject.astro";
+import { locales, type Locale } from "../../i18n/config";
+import { useTranslations } from "../../i18n/utils";
+
+export function getStaticPaths() {
+    return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = useTranslations(lang);
+
+const featuredProjects = [
+    {
+        title: t('project.hangul.title'),
+        description: t('project.hangul.description'),
+        tech: ["JavaScript", "WebGL", "Machine Learning"],
+        animationType: "ai" as const
+    },
+    {
+        title: t('project.drawing.title'),
+        description: t('project.drawing.description'),
+        tech: ["Canvas API", "WebGL Shaders", "TypeScript"],
+        animationType: "drawing" as const
+    },
+    {
+        title: t('project.particles.title'),
+        description: t('project.particles.description'),
+        tech: ["Three.js", "GLSL", "Physics Engine"],
+        animationType: "particles" as const
+    }
+];
+---
+
+<Layout
+    title={`JONGMIN KIM — ${t('hero.subtitle')}`}
+    description={lang === 'ko'
+        ? "크리에이티브 개발자 & 디자이너. WebGL, 머신러닝, 인터랙티브 경험을 통해 코드와 창의성의 교차점을 탐구합니다."
+        : "Creative Developer & Designer based in Seoul. Exploring the intersection of code and creativity through WebGL, machine learning, and interactive experiences."
+    }
+    keywords={['creative developer', 'webgl', 'three.js', 'interactive design', 'generative art', 'creative coding', 'seoul', 'korea']}
+    lang={lang}
+>
+    <Header lang={lang} />
+    <main class="w-full max-w-[var(--width-container)] mx-auto px-8">
+        <!-- Hero Section -->
+        <section class="py-16 lg:py-32 border-b border-[var(--color-border-light)] animate-fade-in-up">
+            <p class="text-[12px] text-[var(--color-text-tertiary)] tracking-wide mb-4">{t('hero.subtitle')}</p>
+            <h1 class="text-[32px] sm:text-[42px] lg:text-[56px] font-light leading-[1.2] tracking-tight" style="font-family: var(--font-serif)">
+                {t('hero.title.line1')}<br />
+                <em class="text-[var(--color-text-secondary)]">{t('hero.code')}</em> {lang === 'ko' ? '와' : 'and'} <em class="text-[var(--color-text-secondary)]">{t('hero.creativity')}</em>
+            </h1>
+        </section>
+
+        <!-- Featured Projects -->
+        <section class="py-12 lg:py-16">
+            <div class="flex justify-between items-center mb-8 lg:mb-12">
+                <span class="label">{t('featured.title')}</span>
+                <span class="text-[12px] text-[var(--color-text-tertiary)]">2024</span>
+            </div>
+
+            {featuredProjects.map((project, index) => (
+                <div style={`animation-delay: ${index * 0.1}s`} class="animate-fade-in opacity-0">
+                    <FeaturedProject
+                        title={project.title}
+                        description={project.description}
+                        tech={project.tech}
+                        animationType={project.animationType}
+                    />
+                </div>
+            ))}
+        </section>
+    </main>
+    <Footer lang={lang} />
+</Layout>

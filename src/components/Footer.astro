@@ -1,0 +1,19 @@
+---
+import { type Locale, defaultLocale } from '../i18n/config';
+
+interface Props {
+    lang?: Locale;
+}
+
+const { lang = defaultLocale } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="w-full border-t border-[var(--color-border-light)] mt-20">
+    <div class="w-full max-w-[var(--width-container)] mx-auto px-8 py-16 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <span class="text-[12px] text-[var(--color-text-tertiary)]">&copy; {year} Jongmin Kim</span>
+        <span class="text-[12px] text-[var(--color-text-tertiary)]">
+            {lang === 'ko' ? '호기심으로 만들었습니다' : 'Built with curiosity'}
+        </span>
+    </div>
+</footer>

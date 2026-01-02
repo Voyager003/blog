@@ -1,0 +1,40 @@
+# robots.txt for blog.cmiscm.com
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and draft pages
+Disallow: /admin/
+Disallow: /draft/
+Disallow: /_astro/
+
+# Crawl delay (optional, for polite crawling)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://blog.cmiscm.com/sitemap-index.xml
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+
+# Block AI training bots (optional)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /

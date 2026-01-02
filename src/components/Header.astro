@@ -1,0 +1,275 @@
+---
+import { type Locale, defaultLocale, localeNames, locales } from '../i18n/config';
+import { useTranslations, getAlternateUrl } from '../i18n/utils';
+
+interface Props {
+    lang?: Locale;
+}
+
+const { lang = defaultLocale } = Astro.props;
+const t = useTranslations(lang);
+const currentPath = Astro.url.pathname;
+
+// Get path without language prefix for comparison
+const pathWithoutLang = currentPath.replace(/^\/(ko|en)/, '') || '/';
+const isInfoPage = pathWithoutLang === '/info' || pathWithoutLang === '/info/';
+const isProjectsPage = pathWithoutLang === '/projects' || pathWithoutLang === '/projects/';
+const isBlogPage = pathWithoutLang.startsWith('/blog');
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-[var(--color-bg)] border-b border-[var(--color-border-light)] transition-colors duration-300" id="header">
+    <div class="w-full max-w-[var(--width-container)] mx-auto h-[var(--header-height)] px-8 flex items-center justify-between">
+        <!-- Logo -->
+        <a
+            href={`/${lang}/`}
+            class="text-[13px] font-medium tracking-wide text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors duration-150"
+        >
+            JONGMIN KIM
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-8">
+            <a
+                href={`/${lang}/info`}
+                class:list={[
+                    "nav-link text-[12px] tracking-wide text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-150 relative",
+                    { "text-[var(--color-text)]": isInfoPage }
+                ]}
+            >
+                {t('nav.info')}
+                <span class:list={[
+                    "absolute -bottom-1 left-0 h-px bg-[var(--color-accent)] transition-all duration-300",
+                    isInfoPage ? "w-full" : "w-0"
+                ]}></span>
+            </a>
+            <a
+                href={`/${lang}/projects`}
+                class:list={[
+                    "nav-link text-[12px] tracking-wide text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-150 relative",
+                    { "text-[var(--color-text)]": isProjectsPage }
+                ]}
+            >
+                {t('nav.projects')}
+                <span class:list={[
+                    "absolute -bottom-1 left-0 h-px bg-[var(--color-accent)] transition-all duration-300",
+                    isProjectsPage ? "w-full" : "w-0"
+                ]}></span>
+            </a>
+            <div class="nav-dropdown">
+                <a
+                    href={`/${lang}/blog`}
+                    class:list={[
+                        "nav-link text-[12px] tracking-wide text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-150 relative",
+                        { "text-[var(--color-text)]": isBlogPage }
+                    ]}
+                >
+                    {t('nav.blog')}
+                    <span class:list={[
+                        "absolute -bottom-1 left-0 h-px bg-[var(--color-accent)] transition-all duration-300",
+                        isBlogPage ? "w-full" : "w-0"
+                    ]}></span>
+                </a>
+                <div class="dropdown-menu">
+                    <a href={`/${lang}/blog?category=news`}>{t('category.news')}</a>
+                    <a href={`/${lang}/blog?category=log`}>{t('category.log')}</a>
+                    <a href={`/${lang}/blog?category=diy`}>{t('category.diy')}</a>
+                    <a href={`/${lang}/blog?category=projects`}>{t('category.projects')}</a>
+                    <a href={`/${lang}/blog?category=lab`}>{t('category.lab')}</a>
+                </div>
+            </div>
+
+            <!-- Language Switcher -->
+            <div class="relative group">
+                <button class="flex items-center gap-1 text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">
+                    {localeNames[lang]}
+                    <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div class="absolute right-0 top-full mt-2 py-2 min-w-[100px] bg-[var(--color-bg)] border border-[var(--color-border)] shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    {locales.filter(l => l !== lang).map(targetLang => (
+                        <a
+                            href={getAlternateUrl(currentPath, targetLang)}
+                            class="block px-4 py-2 text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-border-light)] transition-colors"
+                        >
+                            {localeNames[targetLang]}
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button
+                id="theme-toggle"
+                class="w-8 h-8 flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+                aria-label="Toggle dark mode"
+            >
+                <svg class="w-4 h-4 hidden dark-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg class="w-4 h-4 light-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </nav>
+
+        <!-- Theme Toggle (Mobile) -->
+        <div class="flex items-center gap-4 md:hidden">
+            <button
+                id="theme-toggle-mobile"
+                class="w-8 h-8 flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+                aria-label="Toggle dark mode"
+            >
+                <svg class="w-4 h-4 hidden dark-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg class="w-4 h-4 light-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button
+            class="flex flex-col justify-center items-center w-8 h-8 gap-1.5"
+            id="menu-toggle"
+            aria-label="Toggle menu"
+        >
+            <span class="block w-5 h-px bg-[var(--color-text)] transition-transform duration-300 origin-center" id="menu-line-1"></span>
+            <span class="block w-5 h-px bg-[var(--color-text)] transition-transform duration-300 origin-center" id="menu-line-2"></span>
+        </button>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Navigation -->
+<div
+    class="mobile-nav fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-40 flex-col px-8 py-16 bg-[var(--color-bg)] opacity-0 -translate-y-5 transition-all duration-500"
+    id="mobile-nav"
+>
+    <a href={`/${lang}/`} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">{t('nav.home')}</a>
+    <a href={`/${lang}/info`} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">{t('nav.info')}</a>
+    <a href={`/${lang}/projects`} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">{t('nav.projects')}</a>
+    <a href={`/${lang}/blog`} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">{t('nav.blog')}</a>
+    <div class="flex flex-wrap gap-4 pt-8">
+        <a href={`/${lang}/blog?category=news`} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.news')}</a>
+        <a href={`/${lang}/blog?category=log`} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.log')}</a>
+        <a href={`/${lang}/blog?category=diy`} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.diy')}</a>
+        <a href={`/${lang}/blog?category=projects`} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.projects')}</a>
+        <a href={`/${lang}/blog?category=lab`} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.lab')}</a>
+    </div>
+    <!-- Mobile Language Switcher -->
+    <div class="flex gap-4 pt-8 border-t border-[var(--color-border-light)] mt-8">
+        {locales.map(targetLang => (
+            <a
+                href={getAlternateUrl(currentPath, targetLang)}
+                class:list={[
+                    "text-[14px] transition-colors",
+                    targetLang === lang
+                        ? "text-[var(--color-accent)]"
+                        : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                ]}
+            >
+                {localeNames[targetLang]}
+            </a>
+        ))}
+    </div>
+</div>
+
+<!-- Spacer for fixed header -->
+<div class="h-[var(--header-height)]"></div>
+
+<script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileNav = document.getElementById('mobile-nav');
+    const menuLine1 = document.getElementById('menu-line-1');
+    const menuLine2 = document.getElementById('menu-line-2');
+    const header = document.getElementById('header');
+
+    let isOpen = false;
+
+    menuToggle?.addEventListener('click', () => {
+        isOpen = !isOpen;
+
+        if (isOpen) {
+            mobileNav?.classList.add('active');
+            mobileNav?.classList.remove('opacity-0', '-translate-y-5');
+            mobileNav?.classList.add('opacity-100', 'translate-y-0');
+            menuLine1?.classList.add('translate-y-[4px]', 'rotate-45');
+            menuLine2?.classList.add('-translate-y-[3px]', '-rotate-45');
+            document.body.classList.add('no-scroll');
+        } else {
+            mobileNav?.classList.remove('active');
+            mobileNav?.classList.add('opacity-0', '-translate-y-5');
+            mobileNav?.classList.remove('opacity-100', 'translate-y-0');
+            menuLine1?.classList.remove('translate-y-[4px]', 'rotate-45');
+            menuLine2?.classList.remove('-translate-y-[3px]', '-rotate-45');
+            document.body.classList.remove('no-scroll');
+        }
+    });
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header?.classList.add('border-[var(--color-border)]');
+            header?.classList.remove('border-[var(--color-border-light)]');
+        } else {
+            header?.classList.remove('border-[var(--color-border)]');
+            header?.classList.add('border-[var(--color-border-light)]');
+        }
+    });
+
+    // Nav link hover effect
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            const underline = link.querySelector('span');
+            if (underline && !underline.classList.contains('w-full')) {
+                underline.classList.add('w-full');
+            }
+        });
+        link.addEventListener('mouseleave', () => {
+            const underline = link.querySelector('span');
+            const isActive = link.classList.contains('text-[var(--color-text)]');
+            if (underline && !isActive) {
+                underline.classList.remove('w-full');
+            }
+        });
+    });
+
+    // Theme Toggle
+    function updateThemeIcons() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.querySelectorAll('.dark-icon').forEach(icon => {
+            icon.classList.toggle('hidden', !isDark);
+        });
+        document.querySelectorAll('.light-icon').forEach(icon => {
+            icon.classList.toggle('hidden', isDark);
+        });
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcons();
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', initialTheme);
+    updateThemeIcons();
+
+    // Add event listeners for theme toggles
+    document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+    document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            updateThemeIcons();
+        }
+    });
+</script>

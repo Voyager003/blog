@@ -1,0 +1,143 @@
+---
+interface Heading {
+    depth: number;
+    slug: string;
+    text: string;
+}
+
+interface Props {
+    headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+// Filter to only h2 and h3 headings
+const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+    <nav class="toc hidden xl:block fixed right-8 top-1/2 -translate-y-1/2 w-[200px] max-h-[60vh] overflow-y-auto" id="table-of-contents">
+        <span class="block text-[11px] font-medium tracking-wider uppercase text-[var(--color-text-tertiary)] mb-4">
+            On This Page
+        </span>
+        <ul class="space-y-2">
+            {filteredHeadings.map((heading) => (
+                <li>
+                    <a
+                        href={`#${heading.slug}`}
+                        class:list={[
+                            "toc-link block text-[12px] leading-relaxed text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors duration-150",
+                            { "pl-4": heading.depth === 3 }
+                        ]}
+                        data-heading={heading.slug}
+                    >
+                        {heading.text}
+                    </a>
+                </li>
+            ))}
+        </ul>
+    </nav>
+)}
+
+<style>
+    .toc {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border) transparent;
+    }
+
+    .toc::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .toc::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .toc::-webkit-scrollbar-thumb {
+        background: var(--color-border);
+        border-radius: 2px;
+    }
+
+    .toc-link.active {
+        color: var(--color-accent);
+    }
+
+    .toc-link {
+        position: relative;
+    }
+
+    .toc-link::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 0;
+        background: var(--color-accent);
+        transition: height 0.2s ease;
+    }
+
+    .toc-link.active::before {
+        height: 100%;
+    }
+</style>
+
+<script>
+    function initTOC() {
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const headings = document.querySelectorAll('article h2, article h3');
+
+        if (tocLinks.length === 0 || headings.length === 0) return;
+
+        const observerOptions = {
+            rootMargin: '-80px 0px -80% 0px',
+            threshold: 0
+        };
+
+        let currentActive: Element | null = null;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    if (id) {
+                        tocLinks.forEach(link => link.classList.remove('active'));
+                        const activeLink = document.querySelector(`.toc-link[data-heading="${id}"]`);
+                        if (activeLink) {
+                            activeLink.classList.add('active');
+                            currentActive = activeLink;
+                        }
+                    }
+                }
+            });
+        }, observerOptions);
+
+        headings.forEach(heading => observer.observe(heading));
+
+        // Smooth scroll on click
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-heading');
+                const targetElement = document.getElementById(targetId || '');
+                if (targetElement) {
+                    const headerOffset = 100;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    }
+
+    // Initialize on page load
+    initTOC();
+
+    // Re-initialize on view transitions (if enabled)
+    document.addEventListener('astro:after-swap', initTOC);
+</script>
