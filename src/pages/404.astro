@@ -2,12 +2,15 @@
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { getLangFromUrl } from "../i18n/utils";
+import { getLangFromUrl, getLocalizedPath } from "../i18n/utils";
 import { useTranslations } from "../i18n/utils";
 
 // Try to detect language from URL or default to ko
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+
+// Helper to get localized path
+const getPath = (path: string) => getLocalizedPath(path, lang);
 ---
 
 <Layout
@@ -30,13 +33,13 @@ const t = useTranslations(lang);
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                    href={`/${lang}/`}
+                    href={getPath('/')}
                     class="inline-block px-6 py-3 text-[13px] bg-[var(--color-text)] text-[var(--color-bg)] hover:bg-[var(--color-accent)] transition-colors"
                 >
                     {t('404.goHome')}
                 </a>
                 <a
-                    href={`/${lang}/blog`}
+                    href={getPath('/blog')}
                     class="inline-block px-6 py-3 text-[13px] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
                 >
                     {t('404.readBlog')}

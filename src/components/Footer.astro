@@ -6,14 +6,12 @@ interface Props {
 }
 
 const { lang = defaultLocale } = Astro.props;
-const year = new Date().getFullYear();
 ---
 
-<footer class="w-full border-t border-[var(--color-border-light)] mt-20">
-    <div class="w-full max-w-[var(--width-container)] mx-auto px-8 py-16 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <span class="text-[12px] text-[var(--color-text-tertiary)]">&copy; {year} Jongmin Kim</span>
-        <span class="text-[12px] text-[var(--color-text-tertiary)]">
-            {lang === 'ko' ? '호기심으로 만들었습니다' : 'Built with curiosity'}
-        </span>
+<footer class="w-full mt-auto pt-16 pb-8">
+    <div class="w-full max-w-[var(--width-container)] mx-auto px-8">
+        <p class="text-[11px] text-[var(--color-text-tertiary)] text-center opacity-60">
+            &copy; 2025 <a href="https://github.com/Voyager003" target="_blank" rel="noopener noreferrer" class="hover:opacity-100 transition-opacity">wongi rim</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" class="hover:opacity-100 transition-opacity">CC BY 4.0</a>
+        </p>
     </div>
 </footer>

@@ -9,14 +9,19 @@ export function useTranslations(lang: Locale) {
 
 export function getLangFromUrl(url: URL): Locale {
   const [, lang] = url.pathname.split('/');
-  if (isValidLocale(lang)) return lang;
+  // Only 'en' has a prefix, everything else is Korean (default)
+  if (lang === 'en') return 'en';
   return defaultLocale;
 }
 
 export function getLocalizedPath(path: string, lang: Locale): string {
   // Remove existing lang prefix if present
-  const cleanPath = path.replace(/^\/(ko|en)/, '');
-  return `/${lang}${cleanPath || '/'}`;
+  const cleanPath = path.replace(/^\/(ko|en)/, '') || '/';
+  // Korean (default): no prefix, English: /en prefix
+  if (lang === defaultLocale) {
+    return cleanPath;
+  }
+  return `/en${cleanPath}`;
 }
 
 export function getAlternateUrl(currentPath: string, targetLang: Locale): string {

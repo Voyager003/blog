@@ -1,24 +1,27 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import Header from "../../../components/Header.astro";
-import Footer from "../../../components/Footer.astro";
-import TableOfContents from "../../../components/TableOfContents.astro";
-import BackToTop from "../../../components/BackToTop.astro";
-import Comments from "../../../components/Comments.astro";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
+import BackToTop from "../../components/BackToTop.astro";
+import Comments from "../../components/Comments.astro";
 import { getCollection, render } from "astro:content";
-import { locales, type Locale } from "../../../i18n/config";
-import { useTranslations, formatDate, formatDateShort } from "../../../i18n/utils";
+import { type Locale } from "../../i18n/config";
+import { useTranslations, formatDate, formatDateShort } from "../../i18n/utils";
+
+const lang: Locale = 'ko';
 
 export async function getStaticPaths() {
     const posts = await getCollection("posts", ({ data }) => data.draft !== true);
 
-    return posts.flatMap((post) => {
-        const postLang = post.id.startsWith('ko/') ? 'ko' : 'en';
-        const slug = post.id.replace(/^(ko|en)\//, '');
+    // Only get Korean posts
+    const koPosts = posts.filter(post => post.id.startsWith('ko/'));
+
+    return koPosts.map((post) => {
+        const slug = post.id.replace(/^ko\//, '');
 
         // Get sorted posts for this language to find prev/next
-        const langPosts = posts
-            .filter(p => p.id.startsWith(`${postLang}/`))
+        const langPosts = koPosts
             .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
         const index = langPosts.findIndex(p => p.id === post.id);
@@ -26,13 +29,13 @@ export async function getStaticPaths() {
         const nextPost = langPosts[index - 1] || null;
 
         return {
-            params: { lang: postLang, slug },
+            params: { slug },
             props: { post, prevPost, nextPost },
         };
     });
 }
 
-const { lang, slug } = Astro.params as { lang: Locale; slug: string };
+const { slug } = Astro.params;
 const { post, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(post);
 const t = useTranslations(lang);
@@ -70,7 +73,7 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
                 <!-- Category & Date -->
                 <div class="flex items-center gap-4 mb-6">
                     <a
-                        href={`/${lang}/blog?category=${post.data.category}`}
+                        href={`/blog?category=${post.data.category}`}
                         class="text-[11px] uppercase tracking-wider text-[var(--color-accent)] hover:underline"
                     >
                         {post.data.category}
@@ -109,7 +112,7 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
                     <div class="flex flex-wrap gap-2">
                         {post.data.tags.map(tag => (
                             <a
-                                href={`/${lang}/blog?tag=${tag}`}
+                                href={`/blog?tag=${tag}`}
                                 class="text-[11px] px-3 py-1 bg-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
                             >
                                 #{tag}
@@ -140,7 +143,7 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {prevPost ? (
                         <a
-                            href={`/${lang}/blog/${getPostSlug(prevPost)}`}
+                            href={`/blog/${getPostSlug(prevPost)}`}
                             class="group flex flex-col p-4 border border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors"
                         >
                             <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2">
@@ -154,7 +157,7 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
 
                     {nextPost ? (
                         <a
-                            href={`/${lang}/blog/${getPostSlug(nextPost)}`}
+                            href={`/blog/${getPostSlug(nextPost)}`}
                             class="group flex flex-col p-4 border border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors sm:text-right"
                         >
                             <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2">
@@ -172,7 +175,7 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
             <footer class="mt-8 pt-8 border-t border-[var(--color-border-light)]">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <a
-                        href={`/${lang}/blog`}
+                        href="/blog"
                         class="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
                     >
                         {t('blog.backToBlog')}

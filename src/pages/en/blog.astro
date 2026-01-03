@@ -3,14 +3,10 @@ import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { getCollection } from "astro:content";
-import { locales, type Locale } from "../../i18n/config";
+import { type Locale } from "../../i18n/config";
 import { useTranslations, formatDateShort } from "../../i18n/utils";
 
-export function getStaticPaths() {
-    return locales.map((lang) => ({ params: { lang } }));
-}
-
-const { lang } = Astro.params as { lang: Locale };
+const lang: Locale = 'en';
 const t = useTranslations(lang);
 
 // Filter posts by language (from folder structure: en/post-name or ko/post-name)
@@ -58,10 +54,7 @@ const categories = [
 
 <Layout
     title={t('nav.blog')}
-    description={lang === 'ko'
-        ? "크리에이티브 코딩, WebGL, 머신러닝, 인터랙티브 디자인에 관한 글. 개발 노트, 튜토리얼, 프로젝트 인사이트."
-        : "Articles about creative coding, WebGL, machine learning, and interactive design. Development notes, tutorials, and project insights from Jongmin Kim."
-    }
+    description="Articles about creative coding, WebGL, machine learning, and interactive design. Development notes, tutorials, and project insights from Jongmin Kim."
     keywords={['blog', 'creative coding', 'webgl', 'tutorials', 'development', 'machine learning', 'interactive design']}
     lang={lang}
 >
@@ -132,7 +125,7 @@ const categories = [
                         data-tags={JSON.stringify(post.data.tags)}
                         style={`animation-delay: ${index * 0.05}s`}
                     >
-                        <a href={`/${lang}/blog/${post.slug}`} class="block">
+                        <a href={`/en/blog/${post.slug}`} class="block">
                             <div class="aspect-video sm:aspect-[16/10] overflow-hidden bg-[var(--color-border-light)]">
                                 {post.data.cover ? (
                                     <img
@@ -155,7 +148,7 @@ const categories = [
                                 </span>
                             </div>
                             <h3 class="text-[18px] font-normal leading-snug mb-2 transition-colors duration-150 group-hover:text-[var(--color-accent)]" style="font-family: var(--font-serif)">
-                                <a href={`/${lang}/blog/${post.slug}`}>{post.data.title}</a>
+                                <a href={`/en/blog/${post.slug}`}>{post.data.title}</a>
                             </h3>
                             {post.data.excerpt && (
                                 <p class="text-[13px] leading-relaxed text-[var(--color-text-secondary)] line-clamp-2 mb-3">

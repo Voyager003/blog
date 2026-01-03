@@ -1,16 +1,12 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
-import ProjectCard from "../../components/ProjectCard.astro";
-import { locales, type Locale } from "../../i18n/config";
-import { useTranslations } from "../../i18n/utils";
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { type Locale } from "../i18n/config";
+import { useTranslations } from "../i18n/utils";
 
-export function getStaticPaths() {
-    return locales.map((lang) => ({ params: { lang } }));
-}
-
-const { lang } = Astro.params as { lang: Locale };
+const lang: Locale = 'ko';
 const t = useTranslations(lang);
 
 const projects = [
@@ -34,10 +30,7 @@ const categories = [
 
 <Layout
     title={t('nav.projects')}
-    description={lang === 'ko'
-        ? "김종민의 크리에이티브 코딩 프로젝트. WebGL 실험, 인터랙티브 설치, 제너러티브 아트, 디지털 경험을 탐구합니다."
-        : "Creative coding projects by Jongmin Kim. Explore WebGL experiments, interactive installations, generative art, and digital experiences."
-    }
+    description="김종민의 크리에이티브 코딩 프로젝트. WebGL 실험, 인터랙티브 설치, 제너러티브 아트, 디지털 경험을 탐구합니다."
     keywords={['projects', 'portfolio', 'webgl', 'creative coding', 'generative art', 'interactive', 'experiments']}
     lang={lang}
 >

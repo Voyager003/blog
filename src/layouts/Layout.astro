@@ -52,7 +52,7 @@ const alternateUrls = locales.map(locale => ({
 		{alternateUrls.map(({ lang: altLang, url }) => (
 			<link rel="alternate" hreflang={altLang} href={`https://blog.cmiscm.com${url}`} />
 		))}
-		<link rel="alternate" hreflang="x-default" href={`https://blog.cmiscm.com/${defaultLocale}/`} />
+		<link rel="alternate" hreflang="x-default" href="https://blog.cmiscm.com/" />
 
 		<!-- Prevent flash of wrong theme -->
 		<script is:inline>
