@@ -7,24 +7,32 @@ import BackToTop from "../../../components/BackToTop.astro";
 import Comments from "../../../components/Comments.astro";
 import { getCollection, render } from "astro:content";
 import { type Locale } from "../../../i18n/config";
-import { useTranslations, formatDate, formatDateShort } from "../../../i18n/utils";
+import {
+    useTranslations,
+    formatDate,
+    formatDateShort,
+} from "../../../i18n/utils";
 
-const lang: Locale = 'en';
+const lang: Locale = "en";
 
 export async function getStaticPaths() {
-    const posts = await getCollection("posts", ({ data }) => data.draft !== true);
+    const posts = await getCollection(
+        "posts",
+        ({ data }) => data.draft !== true,
+    );
 
     // Only get English posts
-    const enPosts = posts.filter(post => post.id.startsWith('en/'));
+    const enPosts = posts.filter((post) => post.id.startsWith("en/"));
 
     return enPosts.map((post) => {
-        const slug = post.id.replace(/^en\//, '');
+        const slug = post.id.replace(/^en\//, "").replace(/\.(md|mdx)$/, "");
 
         // Get sorted posts for this language to find prev/next
-        const langPosts = enPosts
-            .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+        const langPosts = [...enPosts].sort(
+            (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+        );
 
-        const index = langPosts.findIndex(p => p.id === post.id);
+        const index = langPosts.findIndex((p) => p.id === post.id);
         const prevPost = langPosts[index + 1] || null;
         const nextPost = langPosts[index - 1] || null;
 
@@ -42,16 +50,17 @@ const t = useTranslations(lang);
 
 // Helper to get slug without lang prefix
 function getPostSlug(post: { id: string }) {
-    return post.id.replace(/^(ko|en)\//, '');
+    return post.id.replace(/^(ko|en)\//, "").replace(/\.(md|mdx)$/, "");
 }
 
 // OG Image URL
-const ogImage = post.data.cover?.src || '/og-image.svg';
+const ogImage = post.data.cover?.src || "/og-image.svg";
 ---
 
 <Layout
     title={post.data.title}
-    description={post.data.excerpt || `${post.data.title} - Blog post by Wongi Rim`}
+    description={post.data.excerpt ||
+        `${post.data.title} - Blog post by Wongi Rim`}
     keywords={post.data.tags}
     ogType="article"
     ogImage={ogImage}
@@ -66,10 +75,14 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
     <!-- Table of Contents -->
     <TableOfContents headings={headings} />
 
-    <main class="w-full max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <main
+        class="w-full max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16"
+    >
         <article>
             <!-- Post Header -->
-            <header class="mb-12 pb-8 border-b border-[var(--color-border-light)]">
+            <header
+                class="mb-12 pb-8 border-b border-[var(--color-border-light)]"
+            >
                 <!-- Category & Date -->
                 <div class="flex items-center gap-4 mb-6">
                     <a
@@ -85,52 +98,69 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
                     >
                         {formatDate(post.data.date, lang)}
                     </time>
-                    {post.data.updatedDate && (
-                        <>
-                            <span class="text-[var(--color-border)]">|</span>
-                            <span class="text-[11px] text-[var(--color-text-tertiary)]">
-                                {t('blog.updated')}: {formatDateShort(post.data.updatedDate, lang)}
-                            </span>
-                        </>
-                    )}
+                    {
+                        post.data.updatedDate && (
+                            <>
+                                <span class="text-[var(--color-border)]">
+                                    |
+                                </span>
+                                <span class="text-[11px] text-[var(--color-text-tertiary)]">
+                                    {t("blog.updated")}:{" "}
+                                    {formatDateShort(
+                                        post.data.updatedDate,
+                                        lang,
+                                    )}
+                                </span>
+                            </>
+                        )
+                    }
                 </div>
 
                 <!-- Title -->
-                <h1 class="text-[32px] sm:text-[40px] font-light leading-tight mb-6" style="font-family: var(--font-serif)">
+                <h1
+                    class="text-[32px] sm:text-[40px] font-light leading-tight mb-6"
+                    style="font-family: var(--font-serif)"
+                >
                     {post.data.title}
                 </h1>
 
                 <!-- Excerpt -->
-                {post.data.excerpt && (
-                    <p class="text-[16px] leading-relaxed text-[var(--color-text-secondary)] mb-6">
-                        {post.data.excerpt}
-                    </p>
-                )}
+                {
+                    post.data.excerpt && (
+                        <p class="text-[16px] leading-relaxed text-[var(--color-text-secondary)] mb-6">
+                            {post.data.excerpt}
+                        </p>
+                    )
+                }
 
                 <!-- Tags -->
-                {post.data.tags.length > 0 && (
-                    <div class="flex flex-wrap gap-2">
-                        {post.data.tags.map(tag => (
-                            <a
-                                href={`/en/blog?tag=${tag}`}
-                                class="text-[11px] px-3 py-1 bg-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
-                            >
-                                #{tag}
-                            </a>
-                        ))}
-                    </div>
-                )}
+                {
+                    post.data.tags.length > 0 && (
+                        <div class="flex flex-wrap gap-2">
+                            {post.data.tags.map((tag) => (
+                                <a
+                                    href={`/en/blog?tag=${tag}`}
+                                    class="text-[11px] px-3 py-1 bg-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
+                                >
+                                    #{tag}
+                                </a>
+                            ))}
+                        </div>
+                    )
+                }
 
                 <!-- Cover Image -->
-                {post.data.cover && (
-                    <div class="mt-8 aspect-video overflow-hidden">
-                        <img
-                            src={post.data.cover.src}
-                            alt={post.data.title}
-                            class="w-full h-full object-cover"
-                        />
-                    </div>
-                )}
+                {
+                    post.data.cover && (
+                        <div class="mt-8 aspect-video overflow-hidden">
+                            <img
+                                src={post.data.cover.src}
+                                alt={post.data.title}
+                                class="w-full h-full object-cover"
+                            />
+                        </div>
+                    )
+                }
             </header>
 
             <!-- Post Content -->
@@ -141,47 +171,68 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
             <!-- Previous/Next Navigation -->
             <nav class="mt-16 pt-8 border-t border-[var(--color-border-light)]">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {prevPost ? (
-                        <a
-                            href={`/en/blog/${getPostSlug(prevPost)}`}
-                            class="group flex flex-col p-4 border border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors"
-                        >
-                            <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2">
-                                {t('blog.previous')}
-                            </span>
-                            <span class="text-[14px] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-2" style="font-family: var(--font-serif)">
-                                {prevPost.data.title}
-                            </span>
-                        </a>
-                    ) : <div />}
+                    {
+                        prevPost ? (
+                            <a
+                                href={`/en/blog/${getPostSlug(prevPost)}`}
+                                class="group flex flex-col p-4 border border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors"
+                            >
+                                <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2">
+                                    {t("blog.previous")}
+                                </span>
+                                <span
+                                    class="text-[14px] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-2"
+                                    style="font-family: var(--font-serif)"
+                                >
+                                    {prevPost.data.title}
+                                </span>
+                            </a>
+                        ) : (
+                            <div />
+                        )
+                    }
 
-                    {nextPost ? (
-                        <a
-                            href={`/en/blog/${getPostSlug(nextPost)}`}
-                            class="group flex flex-col p-4 border border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors sm:text-right"
-                        >
-                            <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2">
-                                {t('blog.next')}
-                            </span>
-                            <span class="text-[14px] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-2" style="font-family: var(--font-serif)">
-                                {nextPost.data.title}
-                            </span>
-                        </a>
-                    ) : <div />}
+                    {
+                        nextPost ? (
+                            <a
+                                href={`/en/blog/${getPostSlug(nextPost)}`}
+                                class="group flex flex-col p-4 border border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors sm:text-right"
+                            >
+                                <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider mb-2">
+                                    {t("blog.next")}
+                                </span>
+                                <span
+                                    class="text-[14px] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-2"
+                                    style="font-family: var(--font-serif)"
+                                >
+                                    {nextPost.data.title}
+                                </span>
+                            </a>
+                        ) : (
+                            <div />
+                        )
+                    }
                 </div>
             </nav>
 
             <!-- Post Footer -->
-            <footer class="mt-8 pt-8 border-t border-[var(--color-border-light)]">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <footer
+                class="mt-8 pt-8 border-t border-[var(--color-border-light)]"
+            >
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                >
                     <a
                         href="/en/blog"
                         class="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
                     >
-                        {t('blog.backToBlog')}
+                        {t("blog.backToBlog")}
                     </a>
                     <div class="flex gap-4">
-                        <span class="text-[12px] text-[var(--color-text-tertiary)]">{t('blog.share')}:</span>
+                        <span
+                            class="text-[12px] text-[var(--color-text-tertiary)]"
+                            >{t("blog.share")}:</span
+                        >
                         <a
                             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(Astro.url.href)}`}
                             target="_blank"
@@ -269,7 +320,8 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
         font-style: italic;
     }
 
-    .prose ul, .prose ol {
+    .prose ul,
+    .prose ol {
         margin-bottom: 24px;
         padding-left: 24px;
     }
@@ -343,7 +395,10 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
         border: none;
         cursor: pointer;
         opacity: 0;
-        transition: opacity 0.2s, background 0.2s, color 0.2s;
+        transition:
+            opacity 0.2s,
+            background 0.2s,
+            color 0.2s;
     }
 
     .prose pre:hover .copy-button {
@@ -379,7 +434,8 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
         font-size: 14px;
     }
 
-    .prose th, .prose td {
+    .prose th,
+    .prose td {
         border: 1px solid var(--color-border);
         padding: 12px;
         text-align: left;
@@ -483,33 +539,33 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
 <script>
     // Code copy button functionality
     function initCopyButtons() {
-        const codeBlocks = document.querySelectorAll('.prose pre');
+        const codeBlocks = document.querySelectorAll(".prose pre");
 
         codeBlocks.forEach((block) => {
-            if (block.querySelector('.copy-button')) return;
+            if (block.querySelector(".copy-button")) return;
 
-            const button = document.createElement('button');
-            button.className = 'copy-button';
-            button.textContent = 'Copy';
-            button.setAttribute('aria-label', 'Copy code to clipboard');
+            const button = document.createElement("button");
+            button.className = "copy-button";
+            button.textContent = "Copy";
+            button.setAttribute("aria-label", "Copy code to clipboard");
 
-            button.addEventListener('click', async () => {
-                const code = block.querySelector('code');
+            button.addEventListener("click", async () => {
+                const code = block.querySelector("code");
                 if (!code) return;
 
                 try {
-                    await navigator.clipboard.writeText(code.textContent || '');
-                    button.textContent = 'Copied!';
-                    button.classList.add('copied');
+                    await navigator.clipboard.writeText(code.textContent || "");
+                    button.textContent = "Copied!";
+                    button.classList.add("copied");
 
                     setTimeout(() => {
-                        button.textContent = 'Copy';
-                        button.classList.remove('copied');
+                        button.textContent = "Copy";
+                        button.classList.remove("copied");
                     }, 2000);
                 } catch (err) {
-                    button.textContent = 'Failed';
+                    button.textContent = "Failed";
                     setTimeout(() => {
-                        button.textContent = 'Copy';
+                        button.textContent = "Copy";
                     }, 2000);
                 }
             });
@@ -519,5 +575,5 @@ const ogImage = post.data.cover?.src || '/og-image.svg';
     }
 
     initCopyButtons();
-    document.addEventListener('astro:after-swap', initCopyButtons);
+    document.addEventListener("astro:after-swap", initCopyButtons);
 </script>
