@@ -17,7 +17,7 @@ const posts = defineCollection({
         tags: z.array(z.string()).default([]),
 
         // 카테고리 (필수)
-        category: z.enum(['news', 'log', 'diy', 'projects', 'lab']),
+        category: z.enum(['article', 'projects', 'lab']),
 
         // 요약/설명 (선택)
         excerpt: z.string().optional(),

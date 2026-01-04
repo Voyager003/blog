@@ -44,9 +44,7 @@ const sortedTags = Object.entries(tagCounts)
 
 const categories = [
     { name: t('category.all'), slug: "all", count: posts.length },
-    { name: t('category.news'), slug: "news", count: categoryCounts['news'] || 0 },
-    { name: t('category.log'), slug: "log", count: categoryCounts['log'] || 0 },
-    { name: t('category.diy'), slug: "diy", count: categoryCounts['diy'] || 0 },
+    { name: t('category.article'), slug: "article", count: categoryCounts['article'] || 0 },
     { name: t('category.projects'), slug: "projects", count: categoryCounts['projects'] || 0 },
     { name: t('category.lab'), slug: "lab", count: categoryCounts['lab'] || 0 }
 ];
@@ -54,15 +52,30 @@ const categories = [
 
 <Layout
     title={t('nav.blog')}
-    description="Articles about creative coding, WebGL, machine learning, and interactive design. Development notes, tutorials, and project insights from Jongmin Kim."
+    description="Articles about creative coding, WebGL, machine learning, and interactive design. Development notes, tutorials, and project insights from Wongi Rim."
     keywords={['blog', 'creative coding', 'webgl', 'tutorials', 'development', 'machine learning', 'interactive design']}
     lang={lang}
 >
     <Header lang={lang} />
-    <main class="w-full max-w-[var(--width-container)] mx-auto px-8 py-12 lg:py-16">
+    <main class="w-full max-w-[var(--width-container-max)] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-32">
             <!-- Sidebar -->
             <aside class="lg:sticky lg:top-[calc(var(--header-height)+32px)] lg:self-start order-first lg:order-none">
+                <!-- Tags -->
+                <span class="label block mb-4">{t('blog.tags')}</span>
+                <div class="flex flex-wrap gap-2 mb-8" id="tag-nav">
+                    {sortedTags.map(({ tag, count }) => (
+                        <a
+                            href={`?tag=${tag}`}
+                            class="tag-link text-[11px] px-2 py-1 bg-[var(--color-border-light)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
+                            data-filter={tag}
+                            data-filter-type="tag"
+                        >
+                            #{tag} <span class="opacity-60">({count})</span>
+                        </a>
+                    ))}
+                </div>
+
                 <!-- Categories -->
                 <span class="label block mb-4">{t('blog.categories')}</span>
                 <nav class="flex flex-row lg:flex-col flex-wrap gap-2 lg:gap-0 mb-8" id="category-nav">
@@ -79,21 +92,6 @@ const categories = [
                         </a>
                     ))}
                 </nav>
-
-                <!-- Tags -->
-                <span class="label block mb-4">{t('blog.tags')}</span>
-                <div class="flex flex-wrap gap-2" id="tag-nav">
-                    {sortedTags.map(({ tag, count }) => (
-                        <a
-                            href={`?tag=${tag}`}
-                            class="tag-link text-[11px] px-2 py-1 bg-[var(--color-border-light)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
-                            data-filter={tag}
-                            data-filter-type="tag"
-                        >
-                            #{tag} <span class="opacity-60">({count})</span>
-                        </a>
-                    ))}
-                </div>
 
                 <!-- Active Filter Indicator -->
                 <div id="active-filter" class="hidden mt-6 p-3 bg-[var(--color-border-light)] border-l-2 border-[var(--color-accent)]">
@@ -120,54 +118,19 @@ const categories = [
 
                 {posts.map((post, index) => (
                     <article
-                        class="group grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-4 sm:gap-8 pb-8 border-b border-[var(--color-border-light)] cursor-pointer post-item"
+                        class="group pb-4 border-b border-[var(--color-border-light)] post-item"
                         data-category={post.data.category}
                         data-tags={JSON.stringify(post.data.tags)}
                         style={`animation-delay: ${index * 0.05}s`}
                     >
-                        <a href={`/en/blog/${post.slug}`} class="block">
-                            <div class="aspect-video sm:aspect-[16/10] overflow-hidden bg-[var(--color-border-light)]">
-                                {post.data.cover ? (
-                                    <img
-                                        src={post.data.cover.src}
-                                        alt={post.data.title}
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    />
-                                ) : (
-                                    <div class="w-full h-full bg-gradient-to-br from-[var(--color-border-light)] to-[var(--color-border)] transition-transform duration-500 group-hover:scale-105"></div>
-                                )}
-                            </div>
-                        </a>
-                        <div class="flex flex-col justify-center">
-                            <div class="flex flex-wrap gap-4 mb-2">
-                                <span class="text-[11px] text-[var(--color-text-tertiary)]">
-                                    {formatDateShort(post.data.date, lang)}
-                                </span>
-                                <span class="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wide">
-                                    {post.data.category}
-                                </span>
-                            </div>
-                            <h3 class="text-[18px] font-normal leading-snug mb-2 transition-colors duration-150 group-hover:text-[var(--color-accent)]" style="font-family: var(--font-serif)">
-                                <a href={`/en/blog/${post.slug}`}>{post.data.title}</a>
+                        <a href={`/en/blog/${post.slug}`} class="flex items-baseline gap-4 hover:text-[var(--color-accent)] transition-colors">
+                            <span class="text-[12px] text-[var(--color-text-tertiary)] shrink-0">
+                                {formatDateShort(post.data.date, lang)}
+                            </span>
+                            <h3 class="text-[16px] font-normal leading-snug" style="font-family: var(--font-serif)">
+                                {post.data.title}
                             </h3>
-                            {post.data.excerpt && (
-                                <p class="text-[13px] leading-relaxed text-[var(--color-text-secondary)] line-clamp-2 mb-3">
-                                    {post.data.excerpt}
-                                </p>
-                            )}
-                            {post.data.tags.length > 0 && (
-                                <div class="flex flex-wrap gap-2">
-                                    {post.data.tags.slice(0, 3).map(tag => (
-                                        <button
-                                            class="tag-filter-btn text-[10px] px-2 py-0.5 bg-[var(--color-border-light)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
-                                            data-tag={tag}
-                                        >
-                                            #{tag}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                        </a>
                     </article>
                 ))}
             </div>

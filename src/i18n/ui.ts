@@ -18,11 +18,9 @@ export const ui = {
 
     // Blog categories
     'category.all': '전체 글',
-    'category.news': '뉴스',
-    'category.log': '로그',
-    'category.diy': 'DIY',
-    'category.projects': '프로젝트',
-    'category.lab': '실험실',
+    'category.article': 'Article',
+    'category.projects': 'Projects',
+    'category.lab': 'Lab',
 
     // Blog UI
     'blog.categories': '카테고리',
@@ -70,7 +68,7 @@ export const ui = {
     '404.readBlog': '블로그 읽기',
 
     // Footer
-    'footer.copyright': '© {year} Jongmin Kim',
+    'footer.copyright': '© {year} Wongi Rim',
 
     // Featured projects
     'project.hangul.title': '한글과 AI의 창의적 만남',
@@ -99,9 +97,7 @@ export const ui = {
 
     // Blog categories
     'category.all': 'All Posts',
-    'category.news': 'News',
-    'category.log': 'Log',
-    'category.diy': 'DIY',
+    'category.article': 'Article',
     'category.projects': 'Projects',
     'category.lab': 'Lab',
 
@@ -151,7 +147,7 @@ export const ui = {
     '404.readBlog': 'Read Blog',
 
     // Footer
-    'footer.copyright': '© {year} Jongmin Kim',
+    'footer.copyright': '© {year} Wongi Rim',
 
     // Featured projects
     'project.hangul.title': 'Hangul Meets AI for Creativity',

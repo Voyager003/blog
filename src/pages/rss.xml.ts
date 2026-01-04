@@ -14,7 +14,7 @@ export async function GET(context: APIContext) {
 
     return rss({
         // RSS 피드 기본 정보
-        title: 'JONGMIN KIM — Creative Developer',
+        title: 'WONGI RIM — Creative Developer',
         description: 'Creative Developer & Designer - Exploring the intersection of code and creativity. Building interactive experiences, experimental interfaces, and digital art.',
         site: context.site || 'https://blog.cmiscm.com',
 
@@ -25,7 +25,7 @@ export async function GET(context: APIContext) {
             description: post.data.excerpt || '',
             link: `/blog/${post.id}/`,
             categories: post.data.tags,
-            author: 'Jongmin Kim',
+            author: 'Wongi Rim',
             // 커스텀 데이터
             customData: `<category>${post.data.category}</category>`,
         })),
@@ -43,8 +43,8 @@ export async function GET(context: APIContext) {
             <language>ko-KR</language>
             <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
             <atom:link href="${context.site}rss.xml" rel="self" type="application/rss+xml"/>
-            <managingEditor>hello@cmiscm.com (Jongmin Kim)</managingEditor>
-            <webMaster>hello@cmiscm.com (Jongmin Kim)</webMaster>
+            <managingEditor>hello@cmiscm.com (Wongi Rim)</managingEditor>
+            <webMaster>hello@cmiscm.com (Wongi Rim)</webMaster>
         `,
     });
 }

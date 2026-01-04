@@ -16,7 +16,8 @@
   --font-mono: 'IBM Plex Mono', monospace;
   --font-serif: 'Newsreader', Georgia, serif;
 
-  --width-container: 1200px;
+  --width-container: 100%;
+  --width-container-max: 1200px;
   --header-height: 72px;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -32,7 +33,7 @@
   --color-accent: #FF4444;
   --color-border: #333333;
   --color-border-light: #222222;
-  --color-code-bg: #0d0d0d;
+  --color-code-bg: #1e1e1e;
 }
 
 /* Base Styles */

@@ -23,7 +23,7 @@ function getPath(path: string): string {
 ---
 
 <header class="fixed top-0 left-0 right-0 z-50 bg-[var(--color-bg)] border-b border-[var(--color-border-light)] transition-colors duration-300" id="header">
-    <div class="w-full max-w-[var(--width-container)] mx-auto h-[var(--header-height)] px-8 flex items-center justify-between">
+    <div class="w-full max-w-[var(--width-container-max)] mx-auto h-[var(--header-height)] px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <!-- Logo -->
         <a
             href={getPath('/')}
@@ -75,9 +75,7 @@ function getPath(path: string): string {
                     ]}></span>
                 </a>
                 <div class="dropdown-menu">
-                    <a href={getPath('/blog?category=news')}>{t('category.news')}</a>
-                    <a href={getPath('/blog?category=log')}>{t('category.log')}</a>
-                    <a href={getPath('/blog?category=diy')}>{t('category.diy')}</a>
+                    <a href={getPath('/blog?category=article')}>{t('category.article')}</a>
                     <a href={getPath('/blog?category=projects')}>{t('category.projects')}</a>
                     <a href={getPath('/blog?category=lab')}>{t('category.lab')}</a>
                 </div>
@@ -151,7 +149,7 @@ function getPath(path: string): string {
 
 <!-- Mobile Navigation -->
 <div
-    class="mobile-nav fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-40 flex-col px-8 py-16 bg-[var(--color-bg)] opacity-0 -translate-y-5 transition-all duration-500"
+    class="mobile-nav fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-40 flex-col px-4 sm:px-6 lg:px-8 py-16 bg-[var(--color-bg)] opacity-0 -translate-y-5 transition-all duration-500"
     id="mobile-nav"
 >
     <a href={getPath('/')} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">HOME</a>
@@ -159,9 +157,7 @@ function getPath(path: string): string {
     <a href={getPath('/projects')} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">PROJECT</a>
     <a href={getPath('/blog')} class="block text-2xl font-light py-4 border-b border-[var(--color-border-light)] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors" style="font-family: var(--font-serif)">BLOG</a>
     <div class="flex flex-wrap gap-4 pt-8">
-        <a href={getPath('/blog?category=news')} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.news')}</a>
-        <a href={getPath('/blog?category=log')} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.log')}</a>
-        <a href={getPath('/blog?category=diy')} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.diy')}</a>
+        <a href={getPath('/blog?category=article')} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.article')}</a>
         <a href={getPath('/blog?category=projects')} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.projects')}</a>
         <a href={getPath('/blog?category=lab')} class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">{t('category.lab')}</a>
     </div>
