@@ -2,9 +2,9 @@
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import { type Locale } from "../i18n/config";
-import { useTranslations, formatDateShort } from "../i18n/utils";
+import { useTranslations, formatDate, formatDateShort } from "../i18n/utils";
 
 const lang: Locale = 'ko';
 const t = useTranslations(lang);
@@ -16,38 +16,18 @@ const allPosts = await getCollection("posts", ({ id, data }) => {
 });
 
 // Sort by date and remove lang prefix from slug
-const posts = allPosts
+const sortedPosts = allPosts
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
     .map(post => ({
         ...post,
         slug: post.id.replace(/^(ko|en)\//, ''),
     }));
 
-// Category counts
-const categoryCounts = posts.reduce((acc, post) => {
-    const cat = post.data.category;
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-}, {} as Record<string, number>);
-
-// Tag counts
-const tagCounts = posts.reduce((acc, post) => {
-    post.data.tags.forEach(tag => {
-        acc[tag] = (acc[tag] || 0) + 1;
-    });
-    return acc;
-}, {} as Record<string, number>);
-
-const sortedTags = Object.entries(tagCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([tag, count]) => ({ tag, count }));
-
-const categories = [
-    { name: t('category.all'), slug: "all", count: posts.length },
-    { name: t('category.article'), slug: "article", count: categoryCounts['article'] || 0 },
-    { name: t('category.projects'), slug: "projects", count: categoryCounts['projects'] || 0 },
-    { name: t('category.lab'), slug: "lab", count: categoryCounts['lab'] || 0 }
-];
+// Prepare posts with Content
+const posts = await Promise.all(sortedPosts.map(async (post) => {
+    const { Content } = await render(post);
+    return { ...post, Content };
+}));
 ---
 
 <Layout
@@ -57,237 +37,66 @@ const categories = [
     lang={lang}
 >
     <Header lang={lang} />
-    <main class="w-full max-w-[var(--width-container-max)] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-32">
-            <!-- Sidebar -->
-            <aside class="lg:sticky lg:top-[calc(var(--header-height)+32px)] lg:self-start order-first lg:order-none">
-                <!-- Tags -->
-                <span class="label block mb-4">{t('blog.tags')}</span>
-                <div class="flex flex-wrap gap-2 mb-8" id="tag-nav">
-                    {sortedTags.map(({ tag, count }) => (
-                        <a
-                            href={`?tag=${tag}`}
-                            class="tag-link text-[11px] px-2 py-1 bg-[var(--color-border-light)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text)] transition-colors"
-                            data-filter={tag}
-                            data-filter-type="tag"
-                        >
-                            #{tag} <span class="opacity-60">({count})</span>
-                        </a>
-                    ))}
-                </div>
-
-                <!-- Categories -->
-                <span class="label block mb-4">{t('blog.categories')}</span>
-                <nav class="flex flex-row lg:flex-col flex-wrap gap-2 lg:gap-0 mb-8" id="category-nav">
-                    {categories.map((cat, index) => (
-                        <a
-                            href={`?category=${cat.slug}`}
-                            class={`cat-link ${index === 0 ? 'active' : ''} px-3 lg:px-0 py-2 lg:py-2 border lg:border-0 lg:border-b border-[var(--color-border)] lg:border-transparent rounded lg:rounded-none`}
-                            data-filter={cat.slug}
-                            data-filter-type="category"
-                        >
-                            <span class="block lg:hidden">{cat.name.split(' ')[0]}</span>
-                            <span class="hidden lg:block">{cat.name}</span>
-                            <span class="hidden lg:inline">{cat.count}</span>
-                        </a>
-                    ))}
-                </nav>
-
-                <!-- Active Filter Indicator -->
-                <div id="active-filter" class="hidden mt-6 p-3 bg-[var(--color-border-light)] border-l-2 border-[var(--color-accent)]">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[12px] text-[var(--color-text-secondary)]">
-                            {t('blog.filterBy')} <strong id="filter-label" class="text-[var(--color-text)]"></strong>
-                        </span>
-                        <button id="clear-filter" class="text-[11px] text-[var(--color-accent)] hover:underline">
-                            {t('blog.clear')}
-                        </button>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Posts List -->
-            <div class="flex flex-col gap-8" id="posts-list">
-                <!-- No Results Message -->
-                <div id="no-results" class="hidden py-16 text-center">
-                    <p class="text-[var(--color-text-secondary)] mb-4">{t('blog.noResults')}</p>
-                    <button id="reset-filter" class="text-[14px] text-[var(--color-accent)] hover:underline">
-                        {t('blog.showAll')}
-                    </button>
-                </div>
-
-                {posts.map((post, index) => (
-                    <article
-                        class="group pb-4 border-b border-[var(--color-border-light)] post-item"
-                        data-category={post.data.category}
-                        data-tags={JSON.stringify(post.data.tags)}
-                        style={`animation-delay: ${index * 0.05}s`}
-                    >
-                        <a href={`/blog/${post.slug}`} class="flex items-baseline gap-4 hover:text-[var(--color-accent)] transition-colors">
-                            <span class="text-[12px] text-[var(--color-text-tertiary)] shrink-0">
-                                {formatDateShort(post.data.date, lang)}
+    <main class="w-full max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <!-- Posts List -->
+        <div class="flex flex-col gap-16" id="posts-list">
+            {posts.map((post, index) => (
+                <article
+                    class="group pb-16 border-b border-[var(--color-border-light)] post-item"
+                    style={`animation-delay: ${index * 0.05}s`}
+                >
+                    <!-- Post Header -->
+                    <header class="mb-8">
+                        <!-- Category & Date -->
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="text-[11px] uppercase tracking-wider text-[var(--color-accent)]">
+                                {post.data.category}
                             </span>
-                            <h3 class="text-[16px] font-normal leading-snug" style="font-family: var(--font-serif)">
+                            <span class="text-[var(--color-border)]">|</span>
+                            <time
+                                datetime={post.data.date.toISOString()}
+                                class="text-[12px] text-[var(--color-text-tertiary)]"
+                            >
+                                {formatDate(post.data.date, lang)}
+                            </time>
+                        </div>
+
+                        <!-- Title -->
+                        <a href={`/blog/${post.slug}`} class="block group-hover:text-[var(--color-accent)] transition-colors">
+                            <h2 class="text-[28px] sm:text-[32px] font-light leading-tight mb-6" style="font-family: var(--font-serif)">
                                 {post.data.title}
-                            </h3>
+                            </h2>
                         </a>
-                    </article>
-                ))}
-            </div>
+
+                        <!-- Cover Image -->
+                        {post.data.cover && (
+                            <div class="mt-6 aspect-video overflow-hidden">
+                                <img
+                                    src={post.data.cover.src}
+                                    alt={post.data.title}
+                                    class="w-full h-full object-cover"
+                                />
+                            </div>
+                        )}
+                    </header>
+
+                    <!-- Post Content -->
+                    <div class="prose prose-lg max-w-none mb-8">
+                        <post.Content />
+                    </div>
+
+                    <!-- Footer / Comment Link -->
+                    <div class="flex justify-end">
+                        <a 
+                            href={`/blog/${post.slug}#comments`}
+                            class="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+                        >
+                            Comment
+                        </a>
+                    </div>
+                </article>
+            ))}
         </div>
     </main>
     <Footer lang={lang} />
 </Layout>
-
-<script>
-    function initBlogFilters() {
-        const categoryLinks = document.querySelectorAll('.cat-link');
-        const tagLinks = document.querySelectorAll('.tag-link');
-        const tagFilterBtns = document.querySelectorAll('.tag-filter-btn');
-        const postItems = document.querySelectorAll('.post-item');
-        const activeFilterEl = document.getElementById('active-filter');
-        const filterLabelEl = document.getElementById('filter-label');
-        const clearFilterBtn = document.getElementById('clear-filter');
-        const resetFilterBtn = document.getElementById('reset-filter');
-        const noResultsEl = document.getElementById('no-results');
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const initialCategory = urlParams.get('category');
-        const initialTag = urlParams.get('tag');
-
-        if (initialTag) {
-            applyTagFilter(initialTag);
-        } else if (initialCategory) {
-            applyCategoryFilter(initialCategory);
-        } else {
-            applyCategoryFilter('all');
-        }
-
-        categoryLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const filter = link.getAttribute('data-filter') || 'all';
-                applyCategoryFilter(filter);
-                updateURL('category', filter);
-            });
-        });
-
-        tagLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tag = link.getAttribute('data-filter') || '';
-                applyTagFilter(tag);
-                updateURL('tag', tag);
-            });
-        });
-
-        tagFilterBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const tag = btn.getAttribute('data-tag') || '';
-                applyTagFilter(tag);
-                updateURL('tag', tag);
-            });
-        });
-
-        clearFilterBtn?.addEventListener('click', () => {
-            applyCategoryFilter('all');
-            updateURL('category', 'all');
-        });
-
-        resetFilterBtn?.addEventListener('click', () => {
-            applyCategoryFilter('all');
-            updateURL('category', 'all');
-        });
-
-        function updateURL(type: string, value: string) {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('category');
-            url.searchParams.delete('tag');
-            if (type === 'category' && value !== 'all') {
-                url.searchParams.set('category', value);
-            } else if (type === 'tag') {
-                url.searchParams.set('tag', value);
-            }
-            window.history.pushState({}, '', url.toString());
-        }
-
-        function applyCategoryFilter(filter: string) {
-            tagLinks.forEach(link => link.classList.remove('active'));
-            categoryLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-filter') === filter) {
-                    link.classList.add('active');
-                }
-            });
-
-            if (filter === 'all') {
-                activeFilterEl?.classList.add('hidden');
-            } else {
-                activeFilterEl?.classList.remove('hidden');
-                if (filterLabelEl) filterLabelEl.textContent = filter;
-            }
-
-            let visibleCount = 0;
-            postItems.forEach(item => {
-                const category = item.getAttribute('data-category');
-                if (filter === 'all' || category === filter) {
-                    item.classList.remove('hidden');
-                    (item as HTMLElement).style.animation = 'fadeIn 0.4s ease forwards';
-                    visibleCount++;
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-
-            if (visibleCount === 0) {
-                noResultsEl?.classList.remove('hidden');
-            } else {
-                noResultsEl?.classList.add('hidden');
-            }
-        }
-
-        function applyTagFilter(tag: string) {
-            categoryLinks.forEach(link => link.classList.remove('active'));
-            tagLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-filter') === tag) {
-                    link.classList.add('active');
-                }
-            });
-
-            activeFilterEl?.classList.remove('hidden');
-            if (filterLabelEl) filterLabelEl.textContent = `#${tag}`;
-
-            let visibleCount = 0;
-            postItems.forEach(item => {
-                const tagsAttr = item.getAttribute('data-tags');
-                const tags: string[] = tagsAttr ? JSON.parse(tagsAttr) : [];
-                if (tags.includes(tag)) {
-                    item.classList.remove('hidden');
-                    (item as HTMLElement).style.animation = 'fadeIn 0.4s ease forwards';
-                    visibleCount++;
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-
-            if (visibleCount === 0) {
-                noResultsEl?.classList.remove('hidden');
-            } else {
-                noResultsEl?.classList.add('hidden');
-            }
-        }
-    }
-
-    initBlogFilters();
-    document.addEventListener('astro:after-swap', initBlogFilters);
-</script>
-
-<style>
-    .tag-link.active {
-        background: var(--color-text);
-        color: var(--color-bg);
-    }
-</style>
