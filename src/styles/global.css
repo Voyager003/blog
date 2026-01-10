@@ -27,8 +27,8 @@
 :root[data-theme="dark"] {
   --color-primary: #1a1a1a;
   --color-bg: #121212;
-  --color-text: #E8E8E8;
-  --color-text-secondary: #A0A0A0;
+  --color-text: #cccccc;
+  --color-text-secondary: #999999;
   --color-text-tertiary: #707070;
   --color-accent: #FF4444;
   --color-border: #333333;
@@ -547,11 +547,18 @@ a {
   color: #24292e !important;
 }
 
-/* Force light styling even in dark mode */
-:root[data-theme="dark"] .prose code {
-  background: #E8E8E8;
-  /* Light gray for inline code in dark mode */
-  color: #333333;
+/* Force light styling even in dark mode for PRE blocks, but use dark for INLINE code */
+:root[data-theme="dark"] .prose code:not(pre code) {
+  background: #333333;
+  /* Dark background for inline code */
+  color: #e0e0e0;
+  /* Light text for inline code */
+}
+
+/* Ensure code text color inside white PRE blocks is dark */
+:root[data-theme="dark"] .prose pre code {
+  background: transparent;
+  color: #24292e;
 }
 
 /* Footnotes */
