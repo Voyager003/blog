@@ -6,25 +6,32 @@ import { getCollection, render } from "astro:content";
 import { type Locale } from "../i18n/config";
 import { useTranslations, formatDate, formatDateShort } from "../i18n/utils";
 
+export async function getStaticPaths({ paginate }: { paginate: any }) {
+    const lang: Locale = 'ko';
+    
+    // Filter posts by language (from folder structure: en/post-name or ko/post-name)
+    const allPosts = await getCollection("posts", ({ id, data }) => {
+        const postLang = id.startsWith('ko/') ? 'ko' : 'en';
+        return postLang === lang && data.draft !== true;
+    });
+
+    // Sort by date and remove lang prefix from slug
+    const sortedPosts = allPosts
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+        .map(post => ({
+            ...post,
+            slug: post.id.replace(/^(ko|en)\//, ''),
+        }));
+    
+    return paginate(sortedPosts, { pageSize: 2 });
+}
+
+const { page } = Astro.props;
 const lang: Locale = 'ko';
 const t = useTranslations(lang);
 
-// Filter posts by language (from folder structure: en/post-name or ko/post-name)
-const allPosts = await getCollection("posts", ({ id, data }) => {
-    const postLang = id.startsWith('ko/') ? 'ko' : 'en';
-    return postLang === lang && data.draft !== true;
-});
-
-// Sort by date and remove lang prefix from slug
-const sortedPosts = allPosts
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-    .map(post => ({
-        ...post,
-        slug: post.id.replace(/^(ko|en)\//, ''),
-    }));
-
-// Prepare posts with Content
-const posts = await Promise.all(sortedPosts.map(async (post) => {
+// Prepare posts with Content for the current page
+const posts = await Promise.all(page.data.map(async (post: any) => {
     const { Content } = await render(post);
     return { ...post, Content };
 }));
@@ -97,6 +104,33 @@ const posts = await Promise.all(sortedPosts.map(async (post) => {
                 </article>
             ))}
         </div>
+
+        <!-- Pagination -->
+        <nav class="flex justify-between items-center mt-16 pt-8 border-t border-[var(--color-border-light)]">
+            {page.url.prev ? (
+                <a href={page.url.prev} class="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+                    ← Newer Posts
+                </a>
+            ) : (
+                <span class="text-[14px] text-[var(--color-text-tertiary)] cursor-not-allowed">
+                    ← Newer Posts
+                </span>
+            )}
+            
+            <span class="text-[12px] text-[var(--color-text-tertiary)] font-mono">
+                Page {page.currentPage} of {page.lastPage}
+            </span>
+
+            {page.url.next ? (
+                <a href={page.url.next} class="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+                    Older Posts →
+                </a>
+            ) : (
+                <span class="text-[14px] text-[var(--color-text-tertiary)] cursor-not-allowed">
+                    Older Posts →
+                </span>
+            )}
+        </nav>
     </main>
     <Footer lang={lang} />
 </Layout>
