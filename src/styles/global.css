@@ -524,27 +524,34 @@ a {
 /* Shiki light/dark theme switching */
 .prose pre {
   position: relative;
-  background: var(--color-code-bg, #1a1a1a) !important;
+  background-color: var(--color-code-bg, #1a1a1a) !important;
   padding: 20px;
   overflow-x: auto;
   margin: 24px 0;
   border-radius: 0;
 }
 
-:root:not([data-theme="dark"]) .prose pre {
-  background: #f6f8fa !important;
+/* Shiki globally set to light theme (github-light) */
+.prose pre {
+  position: relative;
+  background-color: #f6f8fa !important;
+  /* Force light background */
+  padding: 20px;
+  overflow-x: auto;
+  margin: 24px 0;
+  border-radius: 0;
 }
 
-:root:not([data-theme="dark"]) .prose pre code {
-  color: #24292e;
+/* Ensure code text color is always dark for readability on the light background */
+.prose pre code {
+  color: #24292e !important;
 }
 
-:root:not([data-theme="dark"]) .shiki.github-dark {
-  display: none !important;
-}
-
-:root[data-theme="dark"] .shiki.github-light {
-  display: none !important;
+/* Force light styling even in dark mode */
+:root[data-theme="dark"] .prose code {
+  background: #E8E8E8;
+  /* Light gray for inline code in dark mode */
+  color: #333333;
 }
 
 /* Footnotes */

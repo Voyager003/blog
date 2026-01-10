@@ -43,7 +43,7 @@ export default defineConfig({
       // 다크/라이트 테마 설정
       themes: {
         light: 'github-light',
-        dark: 'github-dark',
+        dark: 'github-light',
       },
       // 코드 블록 래핑
       wrap: true,
