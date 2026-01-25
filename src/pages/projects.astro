@@ -16,7 +16,9 @@ const projects = [
         hue: 200,
         href: "https://github.com/Voyager003/echo-extension",
         date: "JAN 2026",
-        description: "음성과 타이핑을 통합한 생산성 향상 크롬 확장 프로그램.",
+        description:
+            "웹페이지 콘텐츠를 분석하고 인공지능 기반 학습 피드백을 제공하는 크롬 확장 프로그램",
+        image: "/images/projects/echo.png",
     },
 ];
 ---
@@ -65,6 +67,7 @@ const projects = [
                             href={project.href}
                             date={project.date}
                             description={project.description}
+                            image={project.image}
                         />
                     </div>
                 ))
