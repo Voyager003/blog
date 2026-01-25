@@ -6,6 +6,7 @@ interface Props {
     href?: string;
     date?: string;
     description?: string;
+    image?: string;
 }
 
 const {
@@ -15,6 +16,7 @@ const {
     href = "#",
     date = "2024",
     description = "",
+    image,
 } = Astro.props;
 ---
 
@@ -36,11 +38,20 @@ const {
         <div
             class="relative aspect-[16/9] overflow-hidden rounded-lg mb-4 bg-[var(--color-bg-secondary)]"
         >
-            <div
-                class="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
-                style={`background: linear-gradient(135deg, hsl(${hue} 5% 94%) 0%, hsl(${hue} 5% 88%) 100%);`}
-            >
-            </div>
+            {
+                image ? (
+                    <img
+                        src={image}
+                        alt={title}
+                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                ) : (
+                    <div
+                        class="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
+                        style={`background: linear-gradient(135deg, hsl(${hue} 5% 94%) 0%, hsl(${hue} 5% 88%) 100%);`}
+                    />
+                )
+            }
         </div>
 
         <!-- Title -->
@@ -60,7 +71,7 @@ const {
         <!-- Category Tag -->
         <div class="flex">
             <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] whitespace-nowrap"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] bg-transparent border border-[var(--color-border)] text-[var(--color-text-secondary)] whitespace-nowrap"
             >
                 {category}
             </span>
