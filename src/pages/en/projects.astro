@@ -6,89 +6,122 @@ import ProjectCard from "../../components/ProjectCard.astro";
 import { type Locale } from "../../i18n/config";
 import { useTranslations } from "../../i18n/utils";
 
-const lang: Locale = 'en';
+const lang: Locale = "en";
 const t = useTranslations(lang);
 
 const projects = [
-    { title: "Noise Flow Field", category: "WebGL", hue: 0 },
-    { title: "Interactive Typography", category: "Interactive", hue: 30 },
-    { title: "Audio Visualizer", category: "Experiment", hue: 60 },
-    { title: "Shader Experiments", category: "WebGL", hue: 120 },
-    { title: "Gesture Recognition", category: "Interactive", hue: 180 },
-    { title: "Generative Patterns", category: "Experiment", hue: 240 },
-    { title: "3D Text Effects", category: "WebGL", hue: 280 },
-    { title: "Touch Canvas", category: "Interactive", hue: 320 }
-];
+    {
+        title: "Echo Extension",
+        category: "Extension",
+        hue: 200,
+        href: "https://github.com/Voyager003/echo-extension",
+        date: "JAN 2026",
+        description:
+            "A productivity Chrome extension integrating voice and typing.",
+    },
 
-const categories = [
-    { name: t('projects.filter.all'), slug: "all" },
-    { name: t('projects.filter.webgl'), slug: "webgl" },
-    { name: t('projects.filter.interactive'), slug: "interactive" },
-    { name: t('projects.filter.experiment'), slug: "experiment" }
+    {
+        title: "Interactive Typography",
+        category: "Interactive",
+        hue: 30,
+        date: "OCT 2025",
+        description:
+            "Kinetic typography that reacts to mouse movement and clicks.",
+    },
+    {
+        title: "Audio Visualizer",
+        category: "Experiment",
+        hue: 60,
+        date: "SEP 2025",
+        description: "Real-time 3D audio visualization using Web Audio API.",
+    },
+    {
+        title: "Shader Experiments",
+        category: "WebGL",
+        hue: 120,
+        date: "AUG 2025",
+        description: "Collection of GLSL shader sketches and visual effects.",
+    },
+    {
+        title: "Gesture Recognition",
+        category: "Interactive",
+        hue: 180,
+        date: "JUL 2025",
+        description: "Hand gesture control interface using TensorFlow.js.",
+    },
+    {
+        title: "Generative Patterns",
+        category: "Experiment",
+        hue: 240,
+        date: "JUN 2025",
+        description: "Algorithmically generated visual patterns and textures.",
+    },
+    {
+        title: "3D Text Effects",
+        category: "WebGL",
+        hue: 280,
+        date: "MAY 2025",
+        description: "Volumetric text rendering with custom lighting models.",
+    },
+    {
+        title: "Touch Canvas",
+        category: "Interactive",
+        hue: 320,
+        date: "APR 2025",
+        description: "Multi-touch drawing canvas with fluid simulation.",
+    },
 ];
 ---
 
 <Layout
-    title={t('nav.projects')}
+    title={t("nav.projects")}
     description="Creative coding projects by Wongi Rim. Explore WebGL experiments, interactive installations, generative art, and digital experiences."
-    keywords={['projects', 'portfolio', 'webgl', 'creative coding', 'generative art', 'interactive', 'experiments']}
+    keywords={[
+        "projects",
+        "portfolio",
+        "webgl",
+        "creative coding",
+        "generative art",
+        "interactive",
+        "experiments",
+    ]}
     lang={lang}
 >
     <Header lang={lang} />
-    <main class="w-full max-w-[var(--width-container-max)] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <main
+        class="w-full max-w-[var(--width-container-max)] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16"
+    >
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 lg:mb-16">
-            <span class="label">{t('projects.title')}</span>
-            <div class="flex flex-wrap gap-2" id="filter-buttons">
-                {categories.map((cat, index) => (
-                    <button
-                        class={`filter-btn ${index === 0 ? 'active' : ''}`}
-                        data-filter={cat.slug}
-                    >
-                        {cat.name}
-                    </button>
-                ))}
-            </div>
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 lg:mb-16"
+        >
+            <span class="label">{t("projects.title")}</span>
         </div>
 
         <!-- Projects Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="projects-grid">
-            {projects.map((project, index) => (
-                <div style={`animation-delay: ${index * 0.05}s`} class="animate-fade-in opacity-0 project-item" data-category={project.category.toLowerCase()}>
-                    <ProjectCard
-                        title={project.title}
-                        category={project.category}
-                        hue={project.hue}
-                    />
-                </div>
-            ))}
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12"
+            id="projects-grid"
+        >
+            {
+                projects.map((project, index) => (
+                    <div
+                        style={`animation-delay: ${index * 0.05}s`}
+                        class="animate-fade-in opacity-0 project-item"
+                        data-category={project.category.toLowerCase()}
+                    >
+                        <ProjectCard
+                            title={project.title}
+                            category={project.category}
+                            hue={project.hue}
+                            href={project.href}
+                            date={project.date}
+                            description={project.description}
+                        />
+                    </div>
+                ))
+            }
         </div>
     </main>
     <Footer lang={lang} />
 </Layout>
-
-<script>
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const projectItems = document.querySelectorAll('.project-item');
-
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filter = button.getAttribute('data-filter');
-
-            // Update active button
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // Filter projects
-            projectItems.forEach(item => {
-                const category = item.getAttribute('data-category');
-                if (filter === 'all' || category === filter) {
-                    item.classList.remove('hidden');
-                    (item as HTMLElement).style.animation = 'fadeIn 0.4s ease forwards';
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-        });
-    });
-</script>

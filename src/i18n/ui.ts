@@ -60,6 +60,7 @@ export const ui = {
     'projects.filter.webgl': 'WebGL',
     'projects.filter.interactive': '인터랙티브',
     'projects.filter.experiment': '실험',
+    'projects.filter.extension': '확장 프로그램',
 
     // 404
     '404.title': '페이지를 찾을 수 없습니다',
@@ -139,6 +140,7 @@ export const ui = {
     'projects.filter.webgl': 'WebGL',
     'projects.filter.interactive': 'Interactive',
     'projects.filter.experiment': 'Experiment',
+    'projects.filter.extension': 'Extension',
 
     // 404
     '404.title': 'Page Not Found',
